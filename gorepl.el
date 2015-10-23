@@ -113,4 +113,4 @@
             map))
 
 
-(provide 'gorepl)
+(provide 'gorepl-mode)
