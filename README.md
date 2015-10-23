@@ -13,7 +13,7 @@ Gorepl packs some features (in no particular order):
 * Interactive code evaluation
 * Evaluate expressions selected
 * Launch a repl with loaded file in a context
-*
+
 ## Installation
 
 `gorepl-mode` is available on [MELPA](http://melpa.org)
@@ -23,7 +23,7 @@ You can install `gorepl-mode` with the following command:
 <kbd>M-x package-install [RET] gorepl-mode [RET]</kbd>
 
 
-### Prerequisites
+### Prerequisite
 
 Because is builded on top of [gore](https://github.com/motemen/gore) , is need to have installed it.
 
