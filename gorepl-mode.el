@@ -1,4 +1,4 @@
-;;; gorepl.el --- Go REPL Interactive Development in top of Gore -*- lexical-binding: t -*-
+;;; gorepl-mode.el --- Go REPL Interactive Development in top of Gore -*- lexical-binding: t -*-
 
 ;; Copyright © 2015-2016 Manuel Alonso
 
@@ -114,3 +114,4 @@
 
 
 (provide 'gorepl-mode)
+;;; gorepl-mode.el ends here
