@@ -1,3 +1,5 @@
+[![MELPA](https://melpa.org/packages/gorepl-mode-badge.svg)](https://melpa.org/#/gorepl-mode)
+
 # gorepl-mode
 A minor emacs mode for Go REPL.
 
@@ -47,7 +49,8 @@ Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
 <kbd>C-C C-g</kbd>                   | Launch an instance of gore REPL client
 <kbd>C-C C-l</kbd>                   | Launch an instance of gore REPL client - with the current file loaded
-<kbd>C-x C-e</kbd>                   | Evaluate the region selected
+<kbd>C-c C-e</kbd>                   | Evaluate the region selected
+<kbd>C-c C-r</kbd>                   | Evaluate the current line
 
 ### Issues
 
