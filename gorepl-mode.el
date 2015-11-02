@@ -31,6 +31,7 @@
 ;;
 ;;; Code:
 
+
 (defgroup gorepl nil
   "GO repl interactive"
   :prefix "gorepl-"
@@ -44,18 +45,17 @@
   :type 'string
   :group 'gorepl)
 
+
+(defcustom gorepl-mode-hook nil
+  "Hook called by `gorepl-mode'."
+  :type 'hook
+  :group 'gorepl)
+
+
 (defconst gorepl-version "0.1.0-snapshot")
 (defconst gorepl-buffer "*Go REPL*")
 (defconst gorepl-buffer-name "Go REPL")
 
-
-(defun gorepl--send-string (s)
-  "Send string to gore repl process and return the output."
-  (with-current-buffer (get-buffer gorepl-buffer)
-    ;;insert into gorepl as comment for visual representation
-    (insert (concat "/*" s "*/"))
-    (comint-send-string (get-buffer-process gorepl-buffer) s)
-    (comint-send-input)))
 
 ;; MANY THANKS to masteringenmacs for this:
 ;; https://www.masteringemacs.org/article/comint-writing-command-interpreter
@@ -75,42 +75,80 @@
              gorepl-command nil args)
       (gorepl-mode))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; API
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defun gorepl-version ()
-  "Display GOREPL's version."
+  "Display GoREPL's version."
   (interactive)
   (message "GOREPL %s" gorepl-version))
 
 (defun gorepl-run ()
+  "Start a GoREPL buffer"
   (interactive)
   (gorepl--run-gore '()))
 
+(defun gorepl-eval-region (begin end)
+  "Evaluate region selected."
+  (interactive "r")
+  (gorepl-mode t)
+  (comint-send-region gorepl-buffer begin end)
+  (comint-send-string gorepl-buffer "\n"))
+
+
+(defun gorepl-eval-line (&optional arg)
+  "Evaluate current line."
+  (interactive "P")
+  (unless arg
+    (setq arg 1))
+  (when (> arg 0)
+    (gorepl-eval-region
+     (line-beginning-position)
+     (line-end-position arg))))
+
 (defun gorepl-run-load-current-file ()
+  "Run a GoREPL with a context file in it"
   (interactive)
   (gorepl--run-gore (list "-context" (buffer-file-name))))
 
-(defun gorepl-eval-selected-region ()
-  "Eval the selected region in the gorepl."
-  (interactive)
-  (gorepl--send-string (filter-buffer-substring (region-beginning)
-                                                (region-end))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Many thanks -> https://github.com/ruediger/rusti.el
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar gorepl-mode-map
+  (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-c C-g") #'gorepl-run)
+            (define-key map (kbd "C-c C-l") #'gorepl-run-load-current-file)
+            (define-key map (kbd "C-c C-e") #'gorepl-eval-region)
+            (define-key map (kbd "C-c C-r") #'gorepl-eval-line)
+            map)
+  "Mode map for `gorepl-mode'.")
+
+(defcustom gorepl-mode-lighter " Gorepl"
+  "Text displayed in the mode line (Lighter) if `gorepl-mode' is active."
+  :group 'gorepl
+  :type 'string)
+
+(easy-menu-define gorepl-mode gorepl-mode-map
+  "Menu for Gorepl Minor Mode."
+  '("Gorepl"
+    ["Run Repl" gorepl-run :help "Run a Gore Repl in other buffer"]
+    ["Run Repl Loading a file" gorepl-run-load-current-file :help "Run a Gore Repl in other buffer loading a file in the context."]
+    ["Eval Region" gorepl-eval-region :help "Evaluate selected region with Gore"]
+    ["Eval Line" gorepl-eval-line :help "Evaluate current line with Gore"]))
 
 ;;;###autoload
 (define-minor-mode gorepl-mode
-  "A minor mode for run a go repl"
-  :lighter " gorepl"
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-c C-g") #'gorepl-run)
-            (define-key map (kbd "C-c C-l") #'gorepl-run-load-current-file)
-            (define-key map (kbd "C-x C-e") #'gorepl-eval-selected-region)
-            map))
+  "A minor mode for run a go repl in top of gore"
+  :group 'gorepl
+  :lighter gorepl-mode-lighter
+  :keymap gorepl-mode-map)
 
 
 (provide 'gorepl-mode)
