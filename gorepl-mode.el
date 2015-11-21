@@ -135,14 +135,6 @@
   :group 'gorepl
   :type 'string)
 
-(easy-menu-define gorepl-mode gorepl-mode-map
-  "Menu for Gorepl Minor Mode."
-  '("Gorepl"
-    ["Run Repl" gorepl-run :help "Run a Gore Repl in other buffer"]
-    ["Run Repl Loading a file" gorepl-run-load-current-file :help "Run a Gore Repl in other buffer loading a file in the context."]
-    ["Eval Region" gorepl-eval-region :help "Evaluate selected region with Gore"]
-    ["Eval Line" gorepl-eval-line :help "Evaluate current line with Gore"]))
-
 ;;;###autoload
 (define-minor-mode gorepl-mode
   "A minor mode for run a go repl in top of gore"
