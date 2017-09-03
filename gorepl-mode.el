@@ -94,9 +94,10 @@
   "Evaluate region selected."
   (interactive "r")
   (gorepl-mode t)
-  (comint-send-region gorepl-buffer begin end)
-  (comint-send-string gorepl-buffer "\n"))
-
+  (let ((cmd (buffer-substring begin end)))
+    (with-current-buffer gorepl-buffer
+      (insert cmd)
+      (comint-send-input))))
 
 (defun gorepl-eval-line (&optional arg)
   "Evaluate current line."
