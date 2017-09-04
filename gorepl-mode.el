@@ -6,7 +6,7 @@
 ;; Maintainer: Manuel Alonso <manuteali@gmail.com>
 ;; URL: http://www.github.com/manute/gorepl-mode
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24") (s "1.11.0"))
+;; Package-Requires: ((emacs "24") (s "1.11.0") (f "0.19.0"))
 ;; Keywords: languages, go, golang, gorepl
 
 ;; This file is NOT part of GNU Emacs.
@@ -32,6 +32,7 @@
 ;;; Code:
 
 (require 's)
+(require 'f)
 
 (defgroup gorepl nil
   "GO repl interactive"
@@ -145,6 +146,28 @@
   "Print the source code from this session"
   (interactive)
   (gorepl-eval ":print"))
+
+(defun gorepl-write ()
+  "Write the source code from this session out to a file"
+  (interactive)
+  (let ((name (read-file-name "Output file name? ")))
+    (message (format "Output file name: %s" name))
+    (let ((name (f-expand name)))
+      (catch 'err
+        (when (s-blank? name)
+          (message "Aborted write: no file name given")
+          (throw 'err nil))
+        (if (f-exists? name) (progn (message "Stomping: %s" name) (f-touch name))
+          (progn
+            (f-write-text (format "// gore dump on `%s' by `%s'\n\n"
+                                  (format-time-string
+                                   "%a %b %d %H:%M:%S %Z %Y"
+                                   (current-time))
+                                  (user-original-login-name))
+                          'utf-8
+                          name)))
+        (let ((stmt (format ":write %s" name)))
+          (gorepl-eval stmt))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
