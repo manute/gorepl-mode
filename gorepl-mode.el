@@ -187,8 +187,10 @@
 (defun gorepl-quit ()
   "Quit"
   (interactive)
-  (let ((stmt ":quit"))
-    (gorepl-eval stmt)))
+  (if (comint-check-proc gorepl-buffer)
+      (let ((stmt ":quit"))
+        (gorepl-eval stmt))
+    (message "gore is already stopped")))
 
 (defun gorepl-eval-line-goto-next-line ()
   "Evaluate this line and move to next."
