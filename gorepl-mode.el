@@ -182,6 +182,12 @@
   (interactive)
   (let ((stmt ":help"))
     (gorepl-eval stmt)))
+
+(defun gorepl-quit ()
+  "Quit"
+  (interactive)
+  (let ((stmt ":quit"))
+    (gorepl-eval stmt)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
