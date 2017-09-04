@@ -176,6 +176,12 @@
     (if (not exp-or-pkg) (message "Aborted documentation: no expression or package provided")
       (let ((stmt (format ":doc %s" exp-or-pkg)))
         (gorepl-eval stmt)))))
+
+(defun gorepl-help ()
+  "Show help"
+  (interactive)
+  (let ((stmt ":help"))
+    (gorepl-eval stmt)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
