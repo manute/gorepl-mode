@@ -90,6 +90,15 @@
   (interactive)
   (gorepl--run-gore '()))
 
+(defun gorepl-eval (stmt)
+  "Send `stmt' to gore, maybe starting it"
+  (interactive)
+  (gorepl-run)
+  (with-current-buffer gorepl-buffer
+    (insert stmt)
+    (comint-send-input)
+    (message (format "Just sent to gore: %s" stmt))))
+
 (defun gorepl-eval-region (begin end)
   "Evaluate region selected."
   (interactive "r")
