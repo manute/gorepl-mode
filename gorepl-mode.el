@@ -64,7 +64,7 @@
   (let* ((buffer (comint-check-proc gorepl-buffer-name)))
     ;; pop to the "*GO REPL Buffer*" buffer if the process is dead, the
     ;; buffer is missing or it's got the wrong mode.
-    (pop-to-buffer
+    (display-buffer
      (if (or buffer (not (derived-mode-p 'gorepl-mode))
              (comint-check-proc (current-buffer)))
          (get-buffer-create (or buffer gorepl-buffer))
