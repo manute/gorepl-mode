@@ -192,6 +192,13 @@
         (gorepl-eval stmt))
     (message "gore is already stopped")))
 
+(defun gorepl-restart ()
+  "Restart gore. In others words: start a fresh gore session."
+  (interactive)
+  (gorepl-quit)
+  (sleep-for 1)
+  (gorepl-run))
+
 (defun gorepl-eval-line-goto-next-line ()
   "Evaluate this line and move to next."
   (interactive)
@@ -201,18 +208,19 @@
 (defhydra gorepl-hydra (:color teal :hint nil)
   "
 ^(Go RE)PL
- Run^              ^| ^Eval^        ^| REPL
--^-----------------^+---------------^+--------------------------------------
+ Run^              ^| ^Eval^         | ^REPL^
+-^-----------------^+--------------+------------------------------------
  _d_: Run empty     | _j_: Selection | _t_: Import <pkg path>
  _f_: Run this file | _k_: Line+Step | _y_: Print this source
  _q_: Quit Hydra    | _K_: Line      | _u_: Write this sourceto <file name>
-                  ^^|              ^^| _i_: Show document for <exp or pkg>
                   ^^|              ^^| _o_: List `these' actual commands
+                  ^^|              ^^| _r_: Restart this REPL
                   ^^|              ^^| _p_: Quit this REPL (or C-d)
 "
   ("d" gorepl-run)
   ("f" gorepl-run-load-current-file)
   ("j" gorepl-eval-region)
+  ("r" gorepl-restart)
   ("k" gorepl-eval-line-goto-next-line :exit nil)
   ("K" gorepl-eval-line)
   ("t" gorepl-import)
