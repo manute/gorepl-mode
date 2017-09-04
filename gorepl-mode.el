@@ -6,7 +6,7 @@
 ;; Maintainer: Manuel Alonso <manuteali@gmail.com>
 ;; URL: http://www.github.com/manute/gorepl-mode
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24") (s "1.11.0") (f "0.19.0"))
+;; Package-Requires: ((emacs "24") (s "1.11.0") (f "0.19.0") (hydra "0.13.0"))
 ;; Keywords: languages, go, golang, gorepl
 
 ;; This file is NOT part of GNU Emacs.
@@ -33,6 +33,7 @@
 
 (require 's)
 (require 'f)
+(require 'hydra)
 
 (defgroup gorepl nil
   "GO repl interactive"
@@ -194,6 +195,31 @@
   (interactive)
   (call-interactively 'gorepl-eval-line)
   (call-interactively 'next-logical-line))
+
+(defhydra gorepl-hydra (:color teal :hint nil)
+  "
+^(Go RE)PL
+ Run^              ^| ^Eval^        ^| REPL
+-^-----------------^+---------------^+--------------------------------------
+ _d_: Run empty     | _j_: Selection | _t_: Import <pkg path>
+ _f_: Run this file | _k_: Line+Step | _y_: Print this source
+ _q_: Quit Hydra    | _K_: Line      | _u_: Write this sourceto <file name>
+                  ^^|              ^^| _i_: Show document for <exp or pkg>
+                  ^^|              ^^| _o_: List `these' actual commands
+                  ^^|              ^^| _p_: Quit this REPL (or C-d)
+"
+  ("d" gorepl-run)
+  ("f" gorepl-run-load-current-file)
+  ("j" gorepl-eval-region)
+  ("k" gorepl-eval-line-goto-next-line :exit nil)
+  ("K" gorepl-eval-line)
+  ("t" gorepl-import)
+  ("y" gorepl-print)
+  ("u" gorepl-write)
+  ("i" gorepl-doc)
+  ("o" gorepl-help)
+  ("p" gorepl-quit)
+  ("q" nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
