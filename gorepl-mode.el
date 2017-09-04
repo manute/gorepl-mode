@@ -86,7 +86,7 @@
   (message "GOREPL %s" gorepl-version))
 
 (defun gorepl-run ()
-  "Start a GoREPL buffer"
+  "Start or switch to the GoREPL buffer"
   (interactive)
   (gorepl--run-gore '()))
 
