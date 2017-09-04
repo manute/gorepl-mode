@@ -141,6 +141,10 @@
         (let ((stmt (format ":import %s" name)))
           (gorepl-eval stmt))))))
 
+(defun gorepl-print ()
+  "Print the source code from this session"
+  (interactive)
+  (gorepl-eval ":print"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
