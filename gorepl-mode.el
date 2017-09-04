@@ -104,9 +104,7 @@
   (interactive "r")
   (gorepl-mode t)
   (let ((cmd (buffer-substring begin end)))
-    (with-current-buffer gorepl-buffer
-      (insert cmd)
-      (comint-send-input))))
+    (gorepl-eval cmd)))
 
 (defun gorepl-eval-line (&optional arg)
   "Evaluate current line."
