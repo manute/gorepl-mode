@@ -6,7 +6,7 @@
 ;; Maintainer: Manuel Alonso <manuteali@gmail.com>
 ;; URL: http://www.github.com/manute/gorepl-mode
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (s "1.11.0") (f "0.19.0") (hydra "0.13.0"))
 ;; Keywords: languages, go, golang, gorepl
 
 ;; This file is NOT part of GNU Emacs.
@@ -31,6 +31,9 @@
 ;;
 ;;; Code:
 
+(require 's)
+(require 'f)
+(require 'hydra)
 
 (defgroup gorepl nil
   "GO repl interactive"
@@ -64,7 +67,7 @@
   (let* ((buffer (comint-check-proc gorepl-buffer-name)))
     ;; pop to the "*GO REPL Buffer*" buffer if the process is dead, the
     ;; buffer is missing or it's got the wrong mode.
-    (pop-to-buffer
+    (display-buffer
      (if (or buffer (not (derived-mode-p 'gorepl-mode))
              (comint-check-proc (current-buffer)))
          (get-buffer-create (or buffer gorepl-buffer))
@@ -86,18 +89,25 @@
   (message "GOREPL %s" gorepl-version))
 
 (defun gorepl-run ()
-  "Start a GoREPL buffer"
+  "Start or switch to the GoREPL buffer"
   (interactive)
   (gorepl--run-gore '()))
+
+(defun gorepl-eval (stmt)
+  "Send `stmt' to gore, maybe starting it"
+  (interactive)
+  (gorepl-run)
+  (with-current-buffer gorepl-buffer
+    (insert stmt)
+    (comint-send-input)
+    (message (format "Just sent to gore: %s" stmt))))
 
 (defun gorepl-eval-region (begin end)
   "Evaluate region selected."
   (interactive "r")
   (gorepl-mode t)
   (let ((cmd (buffer-substring begin end)))
-    (with-current-buffer gorepl-buffer
-      (insert cmd)
-      (comint-send-input))))
+    (gorepl-eval cmd)))
 
 (defun gorepl-eval-line (&optional arg)
   "Evaluate current line."
@@ -114,6 +124,104 @@
   (interactive)
   (gorepl--run-gore (list "-context" (buffer-file-name))))
 
+(defun gorepl-import ()
+  "Import <pkg path>"
+  (interactive)
+  (catch 'err
+    (let ((name (read-string "Package path? ")))
+      (unless name
+        (message "No package specified")
+        (throw 'err nil))
+      (let ((name (s-trim (s-chomp name))))
+        (unless (s-present? name)
+          (message "No package specified")
+          (throw 'err nil))
+        (when (s-contains? " " name)
+          (message "Package names can't contain a space")
+          (throw 'err nil))
+        (message (format "Package specified: %s" name))
+        (let ((stmt (format ":import %s" name)))
+          (gorepl-eval stmt))))))
+
+(defun gorepl-print ()
+  "Print the source code from this session"
+  (interactive)
+  (gorepl-eval ":print"))
+
+(defun gorepl-write ()
+  "Write the source code from this session out to a file"
+  (interactive)
+  (let ((name (read-file-name "Output file name? ")))
+    (message (format "Output file name: %s" name))
+    (let ((name (f-expand name)))
+      (catch 'err
+        (when (s-blank? name)
+          (message "Aborted write: no file name given")
+          (throw 'err nil))
+        (if (f-exists? name) (progn (message "Stomping: %s" name) (f-touch name))
+          (progn
+            (f-write-text (format "// gore dump on `%s' by `%s'\n\n"
+                                  (format-time-string
+                                   "%a %b %d %H:%M:%S %Z %Y"
+                                   (current-time))
+                                  (user-original-login-name))
+                          'utf-8
+                          name)))
+        (let ((stmt (format ":write %s" name)))
+          (gorepl-eval stmt))))))
+
+(defun gorepl-doc ()
+  "Show documentation on <expression or package "
+  (interactive)
+  (let ((exp-or-pkg (read-string "Expression or package? ")))
+    (if (not exp-or-pkg) (message "Aborted documentation: no expression or package provided")
+      (let ((stmt (format ":doc %s" exp-or-pkg)))
+        (gorepl-eval stmt)))))
+
+(defun gorepl-help ()
+  "Show help"
+  (interactive)
+  (let ((stmt ":help"))
+    (gorepl-eval stmt)))
+
+(defun gorepl-quit ()
+  "Quit"
+  (interactive)
+  (if (comint-check-proc gorepl-buffer)
+      (let ((stmt ":quit"))
+        (gorepl-eval stmt))
+    (message "gore is already stopped")))
+
+(defun gorepl-eval-line-goto-next-line ()
+  "Evaluate this line and move to next."
+  (interactive)
+  (call-interactively 'gorepl-eval-line)
+  (call-interactively 'next-logical-line))
+
+(defhydra gorepl-hydra (:color teal :hint nil)
+  "
+^(Go RE)PL
+ Run^              ^| ^Eval^        ^| REPL
+-^-----------------^+---------------^+--------------------------------------
+ _d_: Run empty     | _j_: Selection | _t_: Import <pkg path>
+ _f_: Run this file | _k_: Line+Step | _y_: Print this source
+ _q_: Quit Hydra    | _K_: Line      | _u_: Write this sourceto <file name>
+                  ^^|              ^^| _i_: Show document for <exp or pkg>
+                  ^^|              ^^| _o_: List `these' actual commands
+                  ^^|              ^^| _p_: Quit this REPL (or C-d)
+"
+  ("d" gorepl-run)
+  ("f" gorepl-run-load-current-file)
+  ("j" gorepl-eval-region)
+  ("k" gorepl-eval-line-goto-next-line :exit nil)
+  ("K" gorepl-eval-line)
+  ("t" gorepl-import)
+  ("y" gorepl-print)
+  ("u" gorepl-write)
+  ("i" gorepl-doc)
+  ("o" gorepl-help)
+  ("p" gorepl-quit)
+  ("q" nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
@@ -138,7 +246,7 @@
 
 ;;;###autoload
 (define-minor-mode gorepl-mode
-  "A minor mode for run a go repl in top of gore"
+  "A minor mode for run a go repl on top of gore"
   :group 'gorepl
   :lighter gorepl-mode-lighter
   :keymap gorepl-mode-map)
