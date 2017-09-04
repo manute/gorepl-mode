@@ -188,6 +188,13 @@
   (interactive)
   (let ((stmt ":quit"))
     (gorepl-eval stmt)))
+
+(defun gorepl-eval-line-goto-next-line ()
+  "Evaluate this line and move to next."
+  (interactive)
+  (call-interactively 'gorepl-eval-line)
+  (call-interactively 'next-logical-line))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
