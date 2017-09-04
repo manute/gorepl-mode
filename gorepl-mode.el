@@ -168,6 +168,14 @@
                           name)))
         (let ((stmt (format ":write %s" name)))
           (gorepl-eval stmt))))))
+
+(defun gorepl-doc ()
+  "Show documentation on <expression or package "
+  (interactive)
+  (let ((exp-or-pkg (read-string "Expression or package? ")))
+    (if (not exp-or-pkg) (message "Aborted documentation: no expression or package provided")
+      (let ((stmt (format ":doc %s" exp-or-pkg)))
+        (gorepl-eval stmt)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
 ;;
