@@ -91,6 +91,7 @@
 (defun gorepl-run ()
   "Start or switch to the GoREPL buffer"
   (interactive)
+  (message "Entering gore session...")
   (gorepl--run-gore '()))
 
 (defun gorepl-eval (stmt)
