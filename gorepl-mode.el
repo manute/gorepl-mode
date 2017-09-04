@@ -138,7 +138,7 @@
 
 ;;;###autoload
 (define-minor-mode gorepl-mode
-  "A minor mode for run a go repl in top of gore"
+  "A minor mode for run a go repl on top of gore"
   :group 'gorepl
   :lighter gorepl-mode-lighter
   :keymap gorepl-mode-map)
