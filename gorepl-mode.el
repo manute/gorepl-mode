@@ -6,7 +6,7 @@
 ;; Maintainer: Manuel Alonso <manuteali@gmail.com>
 ;; URL: http://www.github.com/manute/gorepl-mode
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (s "1.11.0"))
 ;; Keywords: languages, go, golang, gorepl
 
 ;; This file is NOT part of GNU Emacs.
@@ -31,6 +31,7 @@
 ;;
 ;;; Code:
 
+(require 's)
 
 (defgroup gorepl nil
   "GO repl interactive"
@@ -121,6 +122,24 @@
   (interactive)
   (gorepl--run-gore (list "-context" (buffer-file-name))))
 
+(defun gorepl-import ()
+  "Import <pkg path>"
+  (interactive)
+  (catch 'err
+    (let ((name (read-string "Package path? ")))
+      (unless name
+        (message "No package specified")
+        (throw 'err nil))
+      (let ((name (s-trim (s-chomp name))))
+        (unless (s-present? name)
+          (message "No package specified")
+          (throw 'err nil))
+        (when (s-contains? " " name)
+          (message "Package names can't contain a space")
+          (throw 'err nil))
+        (message (format "Package specified: %s" name))
+        (let ((stmt (format ":import %s" name)))
+          (gorepl-eval stmt))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DEFINE MINOR MODE
