@@ -27,7 +27,7 @@ You can install `gorepl-mode` with the following command:
 
 ### Prerequisite
 
-Because is builded on top of [gore](https://github.com/motemen/gore) , is need to have installed it.
+Install [gore](https://github.com/motemen/gore).
 
 ### Basic configuration
 
@@ -54,7 +54,7 @@ Keyboard shortcut                    | Description
 
 ### Issues
 
-Because gore is a repl that uses under the hood the command `go run` is not quite fast. In fact when a gorepl is running using `gorepl-run-load-current-file` it can be slow at first input on it(especially on large files), because it is doing `go run `to all file.
+The performance for gore is not very fast, in fact when a gorepl is running using `gorepl-run-load-current-file` it can be slow at first, especially with large files, because it's doing `go run `to all file.
 
 
 ### TODO
